@@ -1,0 +1,133 @@
+.wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  padding: 20px;
+}
+
+.card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 36px 32px;
+  animation: fadeIn 0.3s ease;
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-size: 36px;
+  letter-spacing: 0.1em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.logoDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--fire);
+  animation: pulse-dot 1.5s infinite;
+}
+
+.tagline {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 28px;
+}
+
+.form { display: flex; flex-direction: column; gap: 0; }
+
+.field { margin-bottom: 16px; }
+
+.label {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  margin-bottom: 6px;
+}
+
+.input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.input:focus { border-color: var(--muted2); }
+
+.error {
+  background: rgba(255,60,0,0.1);
+  border: 1px solid rgba(255,60,0,0.3);
+  border-radius: 4px;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: var(--fire);
+  margin-bottom: 14px;
+}
+
+.success {
+  background: var(--green-dim);
+  border: 1px solid rgba(0,230,118,0.3);
+  border-radius: 4px;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: var(--green);
+  margin-bottom: 14px;
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 12px;
+  font-family: var(--font-display);
+  font-size: 16px;
+  letter-spacing: 0.1em;
+  margin-bottom: 16px;
+}
+
+.toggle {
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+
+.toggleBtn {
+  background: none;
+  border: none;
+  color: var(--fire);
+  font-size: 13px;
+  margin-left: 6px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.perks {
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.perk {
+  font-size: 13px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.perkIcon { font-size: 14px; }

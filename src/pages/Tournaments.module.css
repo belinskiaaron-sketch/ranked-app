@@ -1,0 +1,28 @@
+.wrap { min-height: 100vh; }
+.topbar { display: flex; align-items: center; gap: 12px; padding: 20px 28px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 10; }
+.pageTitle { font-family: var(--font-display); font-size: 24px; letter-spacing: 0.08em; }
+.liveBadge { background: var(--fire); color: #fff; font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 3px; letter-spacing: 0.1em; font-family: var(--font-mono); animation: blink 2s infinite; }
+.content { padding: 24px 28px; max-width: 800px; }
+.statsRow { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 28px; }
+.statCard { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 16px; }
+.statLabel { font-size: 10px; letter-spacing: 0.12em; color: var(--muted); font-family: var(--font-mono); margin-bottom: 6px; }
+.statValue { font-family: var(--font-display); font-size: 28px; }
+.sectionTitle { font-family: var(--font-display); font-size: 18px; letter-spacing: 0.08em; margin-bottom: 14px; }
+.tournamentCard { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 20px; margin-bottom: 14px; }
+.tTop { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+.tCategory { font-size: 10px; letter-spacing: 0.12em; color: var(--muted); font-family: var(--font-mono); margin-bottom: 4px; }
+.tName { font-family: var(--font-display); font-size: 22px; letter-spacing: 0.05em; }
+.prizeBox { text-align: right; }
+.prizeAmount { font-family: var(--font-display); font-size: 28px; color: var(--gold); }
+.prizeLabel { font-size: 10px; color: var(--muted); font-family: var(--font-mono); }
+.progressWrap { margin-bottom: 16px; }
+.progressLabel { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); font-family: var(--font-mono); margin-bottom: 8px; }
+.progressBar { height: 4px; background: var(--surface3); border-radius: 2px; overflow: hidden; }
+.progressFill { height: 100%; background: var(--fire); border-radius: 2px; transition: width 0.5s; }
+.tFooter { display: flex; justify-content: space-between; align-items: center; }
+.tInfo { font-size: 13px; color: var(--muted); }
+.tInfo strong { color: var(--text); }
+.comingSoon { background: var(--surface); border: 1px solid rgba(255,208,0,0.2); border-radius: 6px; padding: 20px; margin-top: 8px; border-left: 3px solid var(--gold); }
+.csTitle { font-size: 11px; letter-spacing: 0.12em; color: var(--gold); font-family: var(--font-mono); margin-bottom: 8px; }
+.csText { font-size: 14px; color: var(--muted); line-height: 1.6; }
+@media (max-width: 768px) { .content { padding: 16px; } .topbar { padding: 16px; } .statsRow { grid-template-columns: 1fr 1fr; } }
