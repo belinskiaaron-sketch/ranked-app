@@ -31,6 +31,9 @@ export default function Layout({ session }) {
         <NavLink to="/post" className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}>
           <span className={styles.navIcon}>+</span> Drop Take
         </NavLink>
+        <NavLink to="/store" className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}>
+          <span className={styles.navIcon}>$</span> Store
+        </NavLink>
         <NavLink to="/profile" className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}>
           <span className={styles.navIcon}>◉</span> Profile
         </NavLink>

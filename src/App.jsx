@@ -8,6 +8,7 @@ import Tournaments from './pages/Tournaments'
 import Leaderboard from './pages/Leaderboard'
 import PostTake from './pages/PostTake'
 import Profile from './pages/Profile'
+import Store from './pages/Store'
 
 export default function App() {
   const [session, setSession] = useState(null)
@@ -45,6 +46,7 @@ export default function App() {
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/post" element={<PostTake session={session} />} />
             <Route path="/profile" element={<Profile session={session} />} />
+            <Route path="/store" element={<Store session={session} />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Route>
         )}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import ShareCard from '../components/ShareCard'
 import styles from './Feed.module.css'
 
 const SEED_TAKES = [
@@ -11,10 +12,8 @@ const SEED_TAKES = [
   { id: 'seed-6', text: "The GOAT debate in any sport is pointless. Different eras, different games.", category: 'SPORTS', agree_count: 660, disagree_count: 340, created_at: new Date().toISOString() },
 ]
 
-function TakeCard({ take, userId, onVote }) {
+function TakeCard({ take, userId, onVote, onShare }) {
   const total = (take.agree_count || 0) + (take.disagree_count || 0)
-  const agreePct = total > 0 ? Math.round((take.agree_count / total) * 100) : 50
-  const disagreePct = 100 - agreePct
   const [voted, setVoted] = useState(null)
   const [localAgree, setLocalAgree] = useState(take.agree_count || 0)
   const [localDisagree, setLocalDisagree] = useState(take.disagree_count || 0)
@@ -47,19 +46,16 @@ function TakeCard({ take, userId, onVote }) {
         </div>
       </div>
       <div className={styles.voteButtons}>
-        <button
-          className={`${styles.voteBtn} ${styles.agreeBtn} ${voted === 'agree' ? styles.voted : ''}`}
-          onClick={() => handleVote('agree')}
-          disabled={!!voted}
-        >
+        <button className={`${styles.voteBtn} ${styles.agreeBtn} ${voted === 'agree' ? styles.voted : ''}`} onClick={() => handleVote('agree')} disabled={!!voted}>
           {voted === 'agree' ? '✓ AGREED' : 'AGREE'}
         </button>
-        <button
-          className={`${styles.voteBtn} ${styles.disagreeBtn} ${voted === 'disagree' ? styles.voted : ''}`}
-          onClick={() => handleVote('disagree')}
-          disabled={!!voted}
-        >
+        <button className={`${styles.voteBtn} ${styles.disagreeBtn} ${voted === 'disagree' ? styles.voted : ''}`} onClick={() => handleVote('disagree')} disabled={!!voted}>
           {voted === 'disagree' ? '✓ DISAGREED' : 'DISAGREE'}
+        </button>
+      </div>
+      <div className={styles.shareRow}>
+        <button className={styles.shareBtn} onClick={() => onShare({ ...take, agree_count: localAgree, disagree_count: localDisagree })}>
+          ↗ Share this take
         </button>
       </div>
     </div>
@@ -70,7 +66,7 @@ export default function Feed({ session }) {
   const [takes, setTakes] = useState([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('ALL')
-
+  const [shareTarget, setShareTarget] = useState(null)
   const categories = ['ALL', 'CULTURE', 'TECH', 'FOOD', 'SPORTS', 'LIFE', 'MONEY']
 
   useEffect(() => {
@@ -83,16 +79,8 @@ export default function Feed({ session }) {
   }, [])
 
   const fetchTakes = async () => {
-    const { data, error } = await supabase
-      .from('takes')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(50)
-    if (data && data.length > 0) {
-      setTakes(data)
-    } else {
-      setTakes(SEED_TAKES)
-    }
+    const { data } = await supabase.from('takes').select('*').order('created_at', { ascending: false }).limit(50)
+    setTakes(data && data.length > 0 ? data : SEED_TAKES)
     setLoading(false)
   }
 
@@ -118,11 +106,7 @@ export default function Feed({ session }) {
 
       <div className={styles.filters}>
         {categories.map(cat => (
-          <button
-            key={cat}
-            className={`${styles.filterBtn} ${filter === cat ? styles.filterActive : ''}`}
-            onClick={() => setFilter(cat)}
-          >
+          <button key={cat} className={`${styles.filterBtn} ${filter === cat ? styles.filterActive : ''}`} onClick={() => setFilter(cat)}>
             {cat}
           </button>
         ))}
@@ -133,17 +117,19 @@ export default function Feed({ session }) {
           <div className={styles.loading}>Loading takes...</div>
         ) : filtered.length === 0 ? (
           <div className={styles.empty}>
-            <div className={styles.emptyTitle}>No takes yet in this category</div>
+            <div className={styles.emptyTitle}>No takes in this category yet</div>
             <div className={styles.emptySub}>Be the first to drop one</div>
           </div>
         ) : (
           <div className={styles.grid}>
             {filtered.map(take => (
-              <TakeCard key={take.id} take={take} userId={session.user.id} onVote={handleVote} />
+              <TakeCard key={take.id} take={take} userId={session.user.id} onVote={handleVote} onShare={setShareTarget} />
             ))}
           </div>
         )}
       </div>
+
+      {shareTarget && <ShareCard take={shareTarget} onClose={() => setShareTarget(null)} />}
     </div>
   )
 }
