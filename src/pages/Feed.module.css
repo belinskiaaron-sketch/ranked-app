@@ -173,6 +173,20 @@
   .grid { grid-template-columns: 1fr; }
 }
 
-.shareRow { padding: 8px 16px 12px; border-top: 1px solid var(--border); }
-.shareBtn { background: none; border: none; color: var(--muted); font-size: 12px; cursor: pointer; font-family: var(--font-mono); transition: color 0.15s; }
+.cardFooter {
+  padding: 8px 16px 12px;
+  display: flex;
+  justify-content: flex-end;
+}
+.shareBtn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  transition: color 0.15s;
+  padding: 4px 0;
+}
 .shareBtn:hover { color: var(--fire); }

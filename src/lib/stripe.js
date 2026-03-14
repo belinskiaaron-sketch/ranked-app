@@ -8,7 +8,7 @@ export const PRODUCTS = {
       tokens: 500,
       price: 2.99,
       priceId: 'price_1TAgMlRuNGCzIREeRkudqJhW',
-      label: 'Best for beginners',
+      tag: 'BEST TO START',
       color: 'var(--ice)',
     },
     {
@@ -17,9 +17,8 @@ export const PRODUCTS = {
       tokens: 2000,
       price: 7.99,
       priceId: 'price_1TAgN9RuNGCzIREe3f44SEQy',
-      label: 'Most popular',
+      tag: 'MOST POPULAR',
       color: 'var(--fire)',
-      featured: true,
     },
     {
       id: 'whale',
@@ -27,7 +26,7 @@ export const PRODUCTS = {
       tokens: 6000,
       price: 19.99,
       priceId: 'price_1TAgNVRuNGCzIREehTztvyAw',
-      label: 'Best value',
+      tag: 'BEST VALUE',
       color: 'var(--gold)',
     },
   ],
@@ -38,12 +37,12 @@ export const PRODUCTS = {
       price: 4.99,
       priceId: 'price_1TAgOQRuNGCzIREeYCV98hod',
       color: 'var(--ice)',
-      perks: [
+      features: [
         'Unlimited daily takes',
         'Live vote breakdowns',
         'Full tournament access',
         'Complete take history',
-        'No ads ever',
+        'No ads',
       ],
     },
     {
@@ -52,8 +51,8 @@ export const PRODUCTS = {
       price: 9.99,
       priceId: 'price_1TAgOhRuNGCzIREeyluCG6sJ',
       color: 'var(--gold)',
-      featured: true,
-      perks: [
+      tag: 'MOST POWERFUL',
+      features: [
         'Everything in Explorer',
         'Featured feed placement',
         'Full take analytics',

@@ -12,11 +12,14 @@ const SEED_TAKES = [
   { id: 'seed-6', text: "The GOAT debate in any sport is pointless. Different eras, different games.", category: 'SPORTS', agree_count: 660, disagree_count: 340, created_at: new Date().toISOString() },
 ]
 
-function TakeCard({ take, userId, onVote, onShare }) {
-  const total = (take.agree_count || 0) + (take.disagree_count || 0)
+function TakeCard({ take, userId, onVote }) {
   const [voted, setVoted] = useState(null)
   const [localAgree, setLocalAgree] = useState(take.agree_count || 0)
   const [localDisagree, setLocalDisagree] = useState(take.disagree_count || 0)
+  const [showShare, setShowShare] = useState(false)
+
+  const localTotal = localAgree + localDisagree
+  const localAgreePct = localTotal > 0 ? Math.round((localAgree / localTotal) * 100) : 50
 
   const handleVote = async (type) => {
     if (voted) return
@@ -26,39 +29,52 @@ function TakeCard({ take, userId, onVote, onShare }) {
     if (onVote) onVote(take.id, type)
   }
 
-  const localTotal = localAgree + localDisagree
-  const localAgreePct = localTotal > 0 ? Math.round((localAgree / localTotal) * 100) : 50
+  const shareableTake = { ...take, agree_count: localAgree, disagree_count: localDisagree }
 
   return (
-    <div className={styles.card}>
-      <div className={styles.cardHeader}>
-        <span className={styles.category}>{take.category}</span>
-        <span className={styles.votes}>{localTotal.toLocaleString()} votes</span>
-      </div>
-      <div className={styles.takeText}>"{take.text}"</div>
-      <div className={styles.voteBar}>
-        <div className={styles.voteTrack}>
-          <div className={styles.voteFill} style={{ width: `${localAgreePct}%` }} />
+    <>
+      <div className={styles.card}>
+        <div className={styles.cardHeader}>
+          <span className={styles.category}>{take.category}</span>
+          <span className={styles.votes}>{localTotal.toLocaleString()} votes</span>
         </div>
-        <div className={styles.votePcts}>
-          <span className={styles.agreePct}>{localAgreePct}%</span>
-          <span className={styles.disagreePct}>{100 - localAgreePct}%</span>
+        <div className={styles.takeText}>"{take.text}"</div>
+        <div className={styles.voteBar}>
+          <div className={styles.voteTrack}>
+            <div className={styles.voteFill} style={{ width: `${localAgreePct}%` }} />
+          </div>
+          <div className={styles.votePcts}>
+            <span className={styles.agreePct}>{localAgreePct}%</span>
+            <span className={styles.disagreePct}>{100 - localAgreePct}%</span>
+          </div>
+        </div>
+        <div className={styles.voteButtons}>
+          <button
+            className={`${styles.voteBtn} ${styles.agreeBtn} ${voted === 'agree' ? styles.voted : ''}`}
+            onClick={() => handleVote('agree')}
+            disabled={!!voted}
+          >
+            {voted === 'agree' ? '✓ AGREED' : 'AGREE'}
+          </button>
+          <button
+            className={`${styles.voteBtn} ${styles.disagreeBtn} ${voted === 'disagree' ? styles.voted : ''}`}
+            onClick={() => handleVote('disagree')}
+            disabled={!!voted}
+          >
+            {voted === 'disagree' ? '✓ DISAGREED' : 'DISAGREE'}
+          </button>
+        </div>
+        <div className={styles.cardFooter}>
+          <button className={styles.shareBtn} onClick={() => setShowShare(true)}>
+            ↗ Share Card
+          </button>
         </div>
       </div>
-      <div className={styles.voteButtons}>
-        <button className={`${styles.voteBtn} ${styles.agreeBtn} ${voted === 'agree' ? styles.voted : ''}`} onClick={() => handleVote('agree')} disabled={!!voted}>
-          {voted === 'agree' ? '✓ AGREED' : 'AGREE'}
-        </button>
-        <button className={`${styles.voteBtn} ${styles.disagreeBtn} ${voted === 'disagree' ? styles.voted : ''}`} onClick={() => handleVote('disagree')} disabled={!!voted}>
-          {voted === 'disagree' ? '✓ DISAGREED' : 'DISAGREE'}
-        </button>
-      </div>
-      <div className={styles.shareRow}>
-        <button className={styles.shareBtn} onClick={() => onShare({ ...take, agree_count: localAgree, disagree_count: localDisagree })}>
-          ↗ Share this take
-        </button>
-      </div>
-    </div>
+
+      {showShare && (
+        <ShareCard take={shareableTake} onClose={() => setShowShare(false)} />
+      )}
+    </>
   )
 }
 
@@ -66,7 +82,7 @@ export default function Feed({ session }) {
   const [takes, setTakes] = useState([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('ALL')
-  const [shareTarget, setShareTarget] = useState(null)
+
   const categories = ['ALL', 'CULTURE', 'TECH', 'FOOD', 'SPORTS', 'LIFE', 'MONEY']
 
   useEffect(() => {
@@ -79,8 +95,13 @@ export default function Feed({ session }) {
   }, [])
 
   const fetchTakes = async () => {
-    const { data } = await supabase.from('takes').select('*').order('created_at', { ascending: false }).limit(50)
-    setTakes(data && data.length > 0 ? data : SEED_TAKES)
+    const { data } = await supabase
+      .from('takes')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(50)
+    if (data && data.length > 0) setTakes(data)
+    else setTakes(SEED_TAKES)
     setLoading(false)
   }
 
@@ -106,7 +127,11 @@ export default function Feed({ session }) {
 
       <div className={styles.filters}>
         {categories.map(cat => (
-          <button key={cat} className={`${styles.filterBtn} ${filter === cat ? styles.filterActive : ''}`} onClick={() => setFilter(cat)}>
+          <button
+            key={cat}
+            className={`${styles.filterBtn} ${filter === cat ? styles.filterActive : ''}`}
+            onClick={() => setFilter(cat)}
+          >
             {cat}
           </button>
         ))}
@@ -117,19 +142,17 @@ export default function Feed({ session }) {
           <div className={styles.loading}>Loading takes...</div>
         ) : filtered.length === 0 ? (
           <div className={styles.empty}>
-            <div className={styles.emptyTitle}>No takes in this category yet</div>
+            <div className={styles.emptyTitle}>No takes yet in this category</div>
             <div className={styles.emptySub}>Be the first to drop one</div>
           </div>
         ) : (
           <div className={styles.grid}>
             {filtered.map(take => (
-              <TakeCard key={take.id} take={take} userId={session.user.id} onVote={handleVote} onShare={setShareTarget} />
+              <TakeCard key={take.id} take={take} userId={session.user.id} onVote={handleVote} />
             ))}
           </div>
         )}
       </div>
-
-      {shareTarget && <ShareCard take={shareTarget} onClose={() => setShareTarget(null)} />}
     </div>
   )
 }
