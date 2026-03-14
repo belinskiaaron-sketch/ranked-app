@@ -4,8 +4,6 @@ import { PRODUCTS } from '../lib/stripe'
 import styles from './Store.module.css'
 
 export default function Store({ session }) {
-  const [loading, setLoading] = useState(null)
-  const [error, setError] = useState('')
   const [tokens, setTokens] = useState(1000)
   const isSuccess = new URLSearchParams(window.location.search).get('success')
   const isCancelled = new URLSearchParams(window.location.search).get('cancelled')
@@ -23,43 +21,11 @@ export default function Store({ session }) {
     if (data) setTokens(data.heat_tokens)
   }
 
-  const handleCheckout = async (product, mode) => {
-    setLoading(product.id)
-    setError('')
-
-    try {
-      // Call edge function directly via fetch for reliability
-      const { data: { session: authSession } } = await supabase.auth.getSession()
-      const token = authSession?.access_token
-
-      const res = await fetch(
-        'https://pvedlsqerrrfbrlbaong.supabase.co/functions/v1/create-checkout',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2ZWRsc3FlcnJyZmJybGJhb25nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzY2MTEsImV4cCI6MjA4OTAxMjYxMX0.lyK8C89Giktw6VPpWRSWurKRwQ_BsoUQjl86it-lg8M',
-          },
-          body: JSON.stringify({
-            priceId: product.priceId,
-            mode,
-            userId: session.user.id,
-            successUrl: `${window.location.origin}/store?success=true`,
-            cancelUrl: `${window.location.origin}/store?cancelled=true`,
-          }),
-        }
-      )
-
-      const data = await res.json()
-      if (data.error) throw new Error(data.error)
-      if (data.url) window.location.href = data.url
-      else throw new Error('No checkout URL returned')
-    } catch (err) {
-      console.error('Checkout error:', err)
-      setError(`Checkout failed: ${err.message}. Make sure the Edge Function is deployed in Supabase.`)
-    }
-    setLoading(null)
+  const handleCheckout = (paymentLink) => {
+    // Add success/cancel redirect params to the payment link
+    const successUrl = encodeURIComponent(`${window.location.origin}/store?success=true`)
+    const cancelUrl = encodeURIComponent(`${window.location.origin}/store?cancelled=true`)
+    window.location.href = `${paymentLink}?success_url=${successUrl}&cancel_url=${cancelUrl}`
   }
 
   return (
@@ -83,11 +49,6 @@ export default function Store({ session }) {
             Payment cancelled — no charge was made.
           </div>
         )}
-        {error && (
-          <div className={styles.errorBanner}>
-            {error}
-          </div>
-        )}
 
         {/* TOKEN PACKS */}
         <div className={styles.sectionHeader}>
@@ -102,11 +63,16 @@ export default function Store({ session }) {
               className={`${styles.tokenCard} ${product.id === 'pro' ? styles.featured : ''}`}
             >
               {product.tag && (
-                <div className={styles.cardTag} style={{ color: product.color, borderColor: product.color }}>
+                <div className={styles.cardTag} style={{
+                  color: product.id === 'starter' ? 'var(--ice)' : product.id === 'pro' ? 'var(--fire)' : 'var(--gold)',
+                  borderColor: product.id === 'starter' ? 'var(--ice)' : product.id === 'pro' ? 'var(--fire)' : 'var(--gold)',
+                }}>
                   {product.tag}
                 </div>
               )}
-              <div className={styles.tokenAmount} style={{ color: product.color }}>
+              <div className={styles.tokenAmount} style={{
+                color: product.id === 'starter' ? 'var(--ice)' : product.id === 'pro' ? 'var(--fire)' : 'var(--gold)'
+              }}>
                 {product.tokens.toLocaleString()}
               </div>
               <div className={styles.tokenLabel}>HEAT TOKENS</div>
@@ -120,10 +86,9 @@ export default function Store({ session }) {
                   background: product.id === 'starter' ? 'var(--ice)' : product.id === 'pro' ? 'var(--fire)' : 'var(--gold)',
                   color: product.id === 'whale' ? '#000' : '#fff'
                 }}
-                onClick={() => handleCheckout(product, 'payment')}
-                disabled={!!loading}
+                onClick={() => handleCheckout(product.paymentLink)}
               >
-                {loading === product.id ? 'Loading...' : `Buy for $${product.price}`}
+                Buy for ${product.price}
               </button>
             </div>
           ))}
@@ -142,11 +107,18 @@ export default function Store({ session }) {
               className={`${styles.subCard} ${product.id === 'creator' ? styles.featuredSub : ''}`}
             >
               {product.tag && (
-                <div className={styles.cardTag} style={{ color: product.color, borderColor: product.color }}>
+                <div className={styles.cardTag} style={{
+                  color: 'var(--gold)',
+                  borderColor: 'var(--gold)',
+                }}>
                   {product.tag}
                 </div>
               )}
-              <div className={styles.subName} style={{ color: product.color }}>{product.name}</div>
+              <div className={styles.subName} style={{
+                color: product.id === 'explorer' ? 'var(--ice)' : 'var(--gold)'
+              }}>
+                {product.name}
+              </div>
               <div className={styles.subPrice}>
                 <span className={styles.subAmount}>${product.price}</span>
                 <span className={styles.subPer}>/mo</span>
@@ -154,7 +126,9 @@ export default function Store({ session }) {
               <div className={styles.featureList}>
                 {product.features.map((f, i) => (
                   <div key={i} className={styles.feature}>
-                    <span className={styles.featureCheck} style={{ color: product.color }}>✓</span>
+                    <span className={styles.featureCheck} style={{
+                      color: product.id === 'explorer' ? 'var(--ice)' : 'var(--gold)'
+                    }}>✓</span>
                     {f}
                   </div>
                 ))}
@@ -166,10 +140,9 @@ export default function Store({ session }) {
                   color: product.id === 'creator' ? '#000' : 'var(--ice)',
                   border: product.id === 'creator' ? '1px solid var(--gold)' : '1px solid var(--ice)',
                 }}
-                onClick={() => handleCheckout(product, 'subscription')}
-                disabled={!!loading}
+                onClick={() => handleCheckout(product.paymentLink)}
               >
-                {loading === product.id ? 'Loading...' : `Subscribe — $${product.price}/mo`}
+                Subscribe — ${product.price}/mo
               </button>
             </div>
           ))}
